@@ -1,0 +1,19 @@
+# Pycharm stuff
+.idea/*
+*/__pycache__/*
+*__pycache__
+
+#  Builds
+cpp/build/*
+cpp/dist/*
+cuda/build/*
+cuda/dist/*
+
+# Compressed files
+*.7z
+*.rar
+*.zip
+
+# .egg files
+*.egg
+*.egg-info
