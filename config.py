@@ -56,7 +56,7 @@ CONFIG_N_MNIST = {
     "weight_multiplier": None,
     "dtype": torch.float,
     "device": "cuda",
-    "dataset_path": "~/PycharmProjects/EfficientSpikingBackprop\datasets/NMNIST",
+    "dataset_path": "datasets/nmnist",
     "dataset_id": 'nmnist',
     "dataset_name": 'Neuromorphic-MNIST',
     "dataset_type": 'h5',
@@ -90,10 +90,10 @@ CONFIG_SHD = {
     "weight_multiplier": None,
     "dtype": torch.float,
     "device": "cuda",
-    "dataset_path": "~/PycharmProjects/EfficientSpikingBackprop\datasets/SHD",
+    "dataset_path": "/SHD",
     "dataset_type": 'h5',
     "dataset_id": 'SHD',
-    "dataset_name": 'SHD',
+    "dataset_name": 'datasets/SHD',
     "PREFIX": 'ERROR',
     "lambda_upper": 0.06,
     "lambda_lower": 100.,
@@ -102,7 +102,7 @@ CONFIG_SHD = {
     "p_up": 1,
 }
 
-CONFIGS = {'fmnist': CONFIG_FASHION_MNIST, 'nmnist': CONFIG_N_MNIST, 'cifar10': CONFIG_CIFAR10, 'SHD': CONFIG_SHD}
+CONFIGS = {'fmnist': CONFIG_FASHION_MNIST, 'nmnist': CONFIG_N_MNIST, 'SHD': CONFIG_SHD}
 
 
 

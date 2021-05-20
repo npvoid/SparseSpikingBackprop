@@ -57,8 +57,8 @@ def load_dataset(prs):
         print("Opening dataset in: {}".format(os.path.join(root, 'train.h5')))
     elif prs['dataset_id'] == 'SHD':
         root = os.path.expanduser(prs.get('dataset_path', CONFIG['dataset_path']))
-        fileh_train, units_train, times_train, y_train = open_file(os.path.join(root, 'train.h5'))
-        fileh_test, units_test, times_test, y_test = open_file(os.path.join(root, 'test.h5'))
+        fileh_train, units_train, times_train, y_train = open_file(os.path.join(root, 'train_shd.h5'))
+        fileh_test, units_test, times_test, y_test = open_file(os.path.join(root, 'test_shd.h5'))
         x_train = {'times': times_train, 'units': units_train}
         x_test = {'times': times_test, 'units': units_test}
         print("Opening dataset in: {}".format(os.path.join(root, 'train.h5')))
@@ -813,7 +813,7 @@ def run_and_time(prs=None, s3gd=True):
 
 
 ############################################ RUN AND PLOT ############################################
-def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
+def run(dataset, hidden_list, nb_trials, prs=None):
     global CONFIG, LOG
     CONFIG = CONFIGS[dataset]
 
@@ -866,37 +866,35 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
             prs['nb_epochs'] = prs.get('nb_epochs', CONFIG['nb_epochs'])
             prs['warmup'] = 5
 
-            # My implementation
-            if prs['run_s3gd']:
-                loss_hist, fwd_times, bwd_times, fwd_mems, bwd_mems, train_acc, test_acc, prs_s3gd, counts, params_s3gd = run_and_time(prs=prs,
-                                                                                                                                       s3gd=True)
-                loss_s3gd[trial][n] = loss_hist
-                fwd_s3gd[trial][n] = fwd_times
-                bwd_s3gd[trial][n] = bwd_times
-                fwdm_s3gd[trial][n] = fwd_mems
-                bwdm_s3gd[trial][n] = bwd_mems
-                train_acc_s3gd[trial, n] = train_acc
-                test_acc_s3gd[trial, n] = test_acc
-                spike_counts1[trial][n] = counts['spike_counts1']
-                spike_counts2[trial][n] = counts['spike_counts2']
-                active_counts1[trial][n] = counts['active_counts1']
-                active_counts2[trial][n] = counts['active_counts2']
-                params_s3gd = {'w'+str(l): v for l, v in enumerate(params_s3gd)}
-                torch.save(params_s3gd, os.path.join(PATH_RESULTS, 'params_s3gd.p'))
+            # Sparse spiking backprop
+            loss_hist, fwd_times, bwd_times, fwd_mems, bwd_mems, train_acc, test_acc, prs_s3gd, counts, params_s3gd = run_and_time(prs=prs,
+                                                                                                                                   s3gd=True)
+            loss_s3gd[trial][n] = loss_hist
+            fwd_s3gd[trial][n] = fwd_times
+            bwd_s3gd[trial][n] = bwd_times
+            fwdm_s3gd[trial][n] = fwd_mems
+            bwdm_s3gd[trial][n] = bwd_mems
+            train_acc_s3gd[trial, n] = train_acc
+            test_acc_s3gd[trial, n] = test_acc
+            spike_counts1[trial][n] = counts['spike_counts1']
+            spike_counts2[trial][n] = counts['spike_counts2']
+            active_counts1[trial][n] = counts['active_counts1']
+            active_counts2[trial][n] = counts['active_counts2']
+            params_s3gd = {'w'+str(l): v for l, v in enumerate(params_s3gd)}
+            torch.save(params_s3gd, os.path.join(PATH_RESULTS, 'params_s3gd.p'))
 
             # Pytorch original
-            if prs['run_orig']:
-                loss_hist, fwd_times, bwd_times, fwd_mems, bwd_mems, train_acc, test_acc, prs_orig, counts, params_orig = run_and_time(prs=prs,
-                                                                                                                                       s3gd=False)
-                loss_orig[trial][n] = loss_hist
-                fwd_orig[trial][n] = fwd_times
-                bwd_orig[trial][n] = bwd_times
-                fwdm_orig[trial][n] = fwd_mems
-                bwdm_orig[trial][n] = bwd_mems
-                train_acc_orig[trial, n] = train_acc
-                test_acc_orig[trial, n] = test_acc
-                params_orig = {'w'+str(l): v for l, v in enumerate(params_orig)}
-                torch.save(params_orig, os.path.join(PATH_RESULTS, 'params_orig.p'))
+            loss_hist, fwd_times, bwd_times, fwd_mems, bwd_mems, train_acc, test_acc, prs_orig, counts, params_orig = run_and_time(prs=prs,
+                                                                                                                                   s3gd=False)
+            loss_orig[trial][n] = loss_hist
+            fwd_orig[trial][n] = fwd_times
+            bwd_orig[trial][n] = bwd_times
+            fwdm_orig[trial][n] = fwd_mems
+            bwdm_orig[trial][n] = bwd_mems
+            train_acc_orig[trial, n] = train_acc
+            test_acc_orig[trial, n] = test_acc
+            params_orig = {'w'+str(l): v for l, v in enumerate(params_orig)}
+            torch.save(params_orig, os.path.join(PATH_RESULTS, 'params_orig.p'))
 
             # Checkpoint data
             prs_orig_save = {k: v for k, v in prs_orig.items() if k not in ['SNN_function', 'spike_fn', 'dtype']} if prs_orig is not None else None
@@ -950,8 +948,6 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
     bwd_s3gd = np.array(bwd_s3gd)
     fwdm_s3gd = np.array(fwdm_s3gd) / (1024**2)
     bwdm_s3gd = np.array(bwdm_s3gd) / (1024**2)
-    spike_counts1 = np.array(spike_counts1)
-    spike_counts2 = np.array(spike_counts2)
     active_counts1 = np.array(active_counts1)
     active_counts2 = np.array(active_counts2)
 
@@ -963,18 +959,6 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
     test_acc_orig_error = stats.sem(test_acc_orig)[0]
     test_acc_s3gd_mean = np.mean(test_acc_s3gd, axis=0)
     test_acc_s3gd_error = stats.sem(test_acc_s3gd)[0]
-
-
-    loss_orig_tavg = np.mean(loss_orig, axis=2)
-    fwd_orig_tavg = np.mean(fwd_orig, axis=2)
-    bwd_orig_tavg = np.mean(bwd_orig, axis=2)
-    fwdm_orig_tavg = np.mean(fwdm_orig, axis=2)
-    bwdm_orig_tavg = np.mean(bwdm_orig, axis=2)
-    loss_s3gd_tavg = np.mean(loss_s3gd, axis=2)
-    fwd_s3gd_tavg = np.mean(fwd_s3gd, axis=2)
-    bwd_s3gd_tavg = np.mean(bwd_s3gd, axis=2)
-    fwdm_s3gd_tavg = np.mean(fwdm_s3gd, axis=2)
-    bwdm_s3gd_tavg = np.mean(bwdm_s3gd, axis=2)
 
 
     # Plot
@@ -997,6 +981,7 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
         plt.xlabel("Number of gradient updates")
         plt.ylabel("Time (s)")
         plt.title("{:s} Forward time 2-FClayer [{:d}, {:d}]".format(dataset_name, nb_hidden, nb_hidden))
+        plt.ylim(bottom=0.)
         plt.legend()
         plt.savefig(os.path.join(PATH_RESULTS, 'fwd_h{:d}.pdf'.format(nb_hidden)))
 
@@ -1006,6 +991,7 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
         plt.xlabel("Number of gradient updates")
         plt.ylabel("Time (s)")
         plt.title("{:s} Backward time 2-FClayer [{:d}, {:d}]".format(dataset_name, nb_hidden, nb_hidden))
+        plt.ylim(bottom=0.)
         plt.legend()
         plt.savefig(os.path.join(PATH_RESULTS, 'bwd_h{:d}.pdf'.format(nb_hidden)))
 
@@ -1016,7 +1002,7 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
         plt.xlabel("Number of gradient updates")
         plt.ylabel("Speedup")
         plt.title("{:s} Speedup time 2-FClayer [{:d}, {:d}]".format(dataset_name, nb_hidden, nb_hidden))
-        plt.ylim(bottom=-0.5)
+        plt.ylim([-0.5, 100])
         plt.legend()
         plt.savefig(os.path.join(PATH_RESULTS, 'speedup_h{:d}.pdf'.format(nb_hidden)))
 
@@ -1026,6 +1012,7 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
         plt.xlabel("Number of gradient updates")
         plt.ylabel("GPU Memory (MiB)")
         plt.title("{:s} Forward Memory 2-FClayer [{:d}, {:d}]".format(dataset_name, nb_hidden, nb_hidden))
+        plt.ylim(bottom=0.)
         plt.legend()
         plt.savefig(os.path.join(PATH_RESULTS, 'mem_fwd_h{:d}.pdf'.format(nb_hidden)))
 
@@ -1035,6 +1022,7 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
         plt.xlabel("Number of gradient updates")
         plt.ylabel("GPU Memory (MiB)")
         plt.title("{:s} Backward Memory 2-FClayer [{:d}, {:d}]".format(dataset_name, nb_hidden, nb_hidden))
+        plt.ylim(bottom=0.)
         plt.legend()
         plt.savefig(os.path.join(PATH_RESULTS, 'mem_bwd_h{:d}.pdf'.format(nb_hidden)))
 
@@ -1045,105 +1033,25 @@ def run(dataset, hidden_list, nb_trials, hpc=False, prs=None):
         plt.xlabel("Number of gradient updates")
         plt.ylabel(' GPU Memory Improvement (%) ')
         plt.title("{:s} Memory Improvement 2-FClayer [{:d}, {:d}]".format(dataset_name, nb_hidden, nb_hidden))
-        plt.ylim(bottom=0)
+        plt.ylim(bottom=0.)
         plt.legend()
         plt.savefig(os.path.join(PATH_RESULTS, 'mem_improvement_h{:d}.pdf'.format(nb_hidden)))
 
-        # Spike and active neuron counts
+        # Active neuron counts
         total_vars_first_hidden = prs['batch_size'] * prs['nb_steps'] *prs['nb_hidden']
         total_vars_second_hidden = prs['batch_size'] * prs['nb_steps'] *prs['nb_hidden2']
         plt.figure()
-        plot_error(100*spike_counts1[:, n, :]/total_vars_first_hidden, label='First Hidden Layer')
-        plot_error(100*spike_counts2[:, n, :]/total_vars_second_hidden, label='Second Hidden Layer')
-        plot_error(100*(spike_counts1[:, n, :]+spike_counts2[:, n, :]) / (total_vars_first_hidden + total_vars_second_hidden), label='Total hidden')
-        plt.xlabel("Number of gradient updates")
-        plt.ylabel(' Percentage of spikes (%) ')
-        plt.title("{:s} Total spikes 2-FClayer [{:d}, {:d}]".format(dataset_name, nb_hidden, nb_hidden))
-        plt.ylim(bottom=0)
-        plt.legend()
-        plt.savefig(os.path.join(PATH_RESULTS, 'total_spikes_h{:d}.pdf'.format(nb_hidden)))
-
-        plt.figure()
         plot_error(100*active_counts1[:, n, :]/total_vars_first_hidden, label='First Hidden Layer')
         plot_error(100*active_counts2[:, n, :]/total_vars_second_hidden, label='Second Hidden Layer')
-        plot_error(100*(active_counts1[:, n, :]+active_counts2[:, n, :])/(total_vars_first_hidden+total_vars_second_hidden), label='Total hidden')
         plt.xlabel("Number of gradient updates")
         plt.ylabel(' Percentage of active neurons (%) ')
         plt.title("{:s} Total active neurons 2-FClayer [{:d}, {:d}]".format(dataset_name, nb_hidden, nb_hidden))
-        plt.ylim(bottom=0)
+        plt.ylim(bottom=0.)
         plt.legend()
         plt.savefig(os.path.join(PATH_RESULTS, 'total_active_h{:d}.pdf'.format(nb_hidden)))
 
-
-    ## Plot average times and speedup ##
-    plt.figure()
-    plot_error(loss_orig_tavg, label='Original', x=hidden_list)
-    plot_error(loss_s3gd_tavg, label='Sparse', x=hidden_list)
-    plt.xlabel("Number of hidden neurons")
-    plt.ylabel("Loss")
-    plt.title("{:s} Loss 2-FClayer ".format(dataset_name))
-    plt.legend()
-    plt.savefig(os.path.join(PATH_RESULTS, 'tavg_loss.pdf'))
-
-    plt.figure()
-    plot_error(fwd_orig_tavg, label='Original', x=hidden_list)
-    plot_error(fwd_s3gd_tavg, label='Sparse', x=hidden_list)
-    plt.xlabel("Number of hidden neurons")
-    plt.ylabel("Time (s)")
-    plt.title("{:s} Forward Time 2-FClayer ".format(dataset_name))
-    plt.legend()
-    plt.savefig(os.path.join(PATH_RESULTS, 'tavg_fwd.pdf'))
-
-    plt.figure()
-    plot_error(bwd_orig_tavg, label='Original', x=hidden_list)
-    plot_error(bwd_s3gd_tavg, label='Sparse', x=hidden_list)
-    plt.xlabel("Number of hidden neurons")
-    plt.ylabel("Time (s)")
-    plt.title("{:s} Backward Time 2-FClayer ".format(dataset_name))
-    plt.legend()
-    plt.savefig(os.path.join(PATH_RESULTS, 'tavg_bwd.pdf'))
-
-    plt.figure()
-    plot_error(bwd_orig_tavg / (bwd_s3gd_tavg+1e-30), label='Backward', x=hidden_list)
-    plot_error((fwd_orig_tavg+bwd_orig_tavg) / (fwd_s3gd_tavg+bwd_s3gd_tavg+1e-30), label='Overall (backward+forward)', x=hidden_list)
-    plt.xlabel("Number of hidden neurons")
-    plt.ylabel("Speedup")
-    plt.title("{:s} Speedup 2-FClayer ".format(dataset_name))
-    plt.ylim(bottom=-0.5)
-    plt.legend()
-    plt.savefig(os.path.join(PATH_RESULTS, 'tavg_speedup.pdf'))
-
-    plt.figure()
-    plot_error(fwdm_orig_tavg, label='Original', x=hidden_list)
-    plot_error(fwdm_s3gd_tavg, label='Sparse', x=hidden_list)
-    plt.xlabel("Number of hidden neurons")
-    plt.ylabel("GPU Memory (MiB)")
-    plt.title("{:s} Forward Memory 2-FClayer ".format(dataset_name))
-    plt.legend()
-    plt.savefig(os.path.join(PATH_RESULTS, 'memory_tavg_fwd.pdf'))
-
-    plt.figure()
-    plot_error(bwdm_orig_tavg, label='Original', x=hidden_list)
-    plot_error(bwdm_s3gd_tavg, label='Sparse', x=hidden_list)
-    plt.xlabel("Number of hidden neurons")
-    plt.ylabel("GPU Memory (MiB)")
-    plt.title("{:s} Backward Memory 2-FClayer ".format(dataset_name))
-    plt.legend()
-    plt.savefig(os.path.join(PATH_RESULTS, 'memory_tavg_bwd.pdf'))
-
-    plt.figure()
-    plot_error(100 * ((bwdm_orig_tavg / (bwdm_s3gd_tavg+1e-30))-1), label='Backward', x=hidden_list)
-    plot_error(100 * (((fwdm_orig_tavg+bwdm_orig_tavg) / (fwdm_s3gd_tavg+bwdm_s3gd_tavg+1e-30))-1), label='Overall (backward+forward)', x=hidden_list)
-    plt.xlabel("Number of hidden neurons")
-    plt.ylabel(' GPU Memory Improvement (%) ')
-    plt.title("{:s} Memory Improvement 2-FClayer ".format(dataset_name))
-    plt.ylim(bottom=0)
-    plt.legend()
-    plt.savefig(os.path.join(PATH_RESULTS, 'memory_tavg_improvement.pdf'))
-
-
     ## Plot accuracies ##
-    x = np.arange(len(hidden_list))  # This would be the number of datasets
+    x = np.arange(len(hidden_list))
     width = 0.35  # the width of the bars
 
     # Training
