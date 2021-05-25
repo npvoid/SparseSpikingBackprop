@@ -79,6 +79,9 @@ python main.py --dataset nmnist
 python main.py --dataset SHD
 ```
 
+You can also find the code for the plots in the paper under the `plotting` direcctory. 
+We included the results for a single seed so that it can be run with either `python final_plots.py` for the main text plots or `python supp_plots.py` for the supplementary plots.
+
 ## Results
 
 ### Spiking neurons are inactive most of the time and yet the gradient is well approximated
