@@ -1,19 +1,19 @@
 name: s3gd
 channels:
+  - psi4
   - pytorch
   - defaults
-  - bioconda
-  - conda-forge
-  - omnia
 dependencies:
-  - python_abi=3.9=1_cp39
   - _libgcc_mutex=0.1=main
   - blas=1.0=mkl
   - ca-certificates=2021.1.19=h06a4308_1
-  - certifi=2020.12.5=py39h06a4308_0
+  - certifi=2020.12.5=py38h06a4308_0
+  - cloog=0.18.0=0
   - cudatoolkit=11.0.221=h6bb024c_0
   - freetype=2.10.4=h5ab3b9f_0
+  - gmp=6.2.1=h2531618_2
   - intel-openmp=2020.2=254
+  - isl=0.12.2=0
   - jpeg=9b=h024ee3a_2
   - lcms2=2.11=h396b838_0
   - ld_impl_linux-64=2.33.1=h53a641e_7
@@ -22,42 +22,41 @@ dependencies:
   - libpng=1.6.37=hbc83047_0
   - libstdcxx-ng=9.1.0=hdf63c60_0
   - libtiff=4.2.0=h3942068_0
+  - libuv=1.40.0=h7b6447c_0
   - libwebp-base=1.2.0=h27cfd23_0
   - lz4-c=1.9.3=h2531618_0
   - mkl=2020.2=256
-  - mkl-service=2.3.0=py39he8ac12f_0
-  - mkl_fft=1.3.0=py39h54f3939_0
-  - mkl_random=1.0.2=py39h63df603_0
+  - mkl-service=2.3.0=py38he904b0f_0
+  - mkl_fft=1.3.0=py38h54f3939_0
+  - mkl_random=1.1.1=py38h0573a6f_0
+  - mpc=1.1.0=h10f8cd9_1
+  - mpfr=4.0.2=hb69a4c5_1
   - ncurses=6.2=he6710b0_1
-  - ninja=1.10.2=py39hff7bd54_0
-  - numpy=1.19.2=py39h89c1606_0
-  - numpy-base=1.19.2=py39h2ae0177_0
+  - ninja=1.10.2=py38hff7bd54_0
+  - numpy=1.19.2=py38h54aff64_0
+  - numpy-base=1.19.2=py38hfa32c7d_0
   - olefile=0.46=py_0
   - openssl=1.1.1j=h27cfd23_0
-  - pillow=8.1.2=py39he98fc37_0
-  - pip=21.0.1=py39h06a4308_0
-  - python=3.9.2=hdb3f193_0
+  - pillow=8.1.2=py38he98fc37_0
+  - pip=21.0.1=py38h06a4308_0
+  - python=3.8.8=hdb3f193_4
   - readline=8.1=h27cfd23_0
-  - setuptools=52.0.0=py39h06a4308_0
+  - setuptools=52.0.0=py38h06a4308_0
   - six=1.15.0=pyhd3eb1b0_0
   - sqlite=3.35.2=hdfb4753_0
   - tk=8.6.10=hbc83047_0
   - typing_extensions=3.7.4.3=pyha847dfd_0
-  - tzdata=2020f=h52ac0ba_0
   - wheel=0.36.2=pyhd3eb1b0_0
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.5=h9ceee32_0
-  - pytorch=1.7.1=py3.9_cuda11.0.221_cudnn8.0.5_0
-  - torchaudio=0.7.2=py39
-  - torchvision=0.8.2=py39_cu110
+  - gcc-5=5.2.0=1
+  - pytorch=1.7.1=py3.8_cuda11.0.221_cudnn8.0.5_0
+  - torchaudio=0.7.2=py38
+  - torchvision=0.8.2=py38_cu110
+
   - pip:
-    - cycler==0.10.0
-    - kiwisolver==1.3.1
-    - matplotlib==3.3.4
-    - numexpr==2.7.3
-    - pyparsing==2.4.7
-    - python-dateutil==2.8.1
-    - scipy==1.6.2
-    - tables==3.6.1
-    - torch==1.7.1
+    - matplotlib
+    - scipy
+    - tables
+

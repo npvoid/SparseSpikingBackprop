@@ -10,13 +10,14 @@ A sparse gradient descent method for spiking neural networks that runs backpropa
 Required:
 * A CUDA capable GPU with [CUDA 11.0](https://developer.nvidia.com/cuda-11.0-download-archive) installed
 * [pyTorch 1.7.1](https://pytorch.org/get-started/previous-versions/#v171)
+* [GCC >=5](https://gcc.gnu.org/) or equivalent C++ compiler
 
 Optional:
 * [matplotlib](https://matplotlib.org/stable/users/installing.html) (for plotting results)
 * [scipy](https://matplotlib.org/stable/users/installing.html) (for plotting results)
 * [pytables](https://www.pytables.org/usersguide/installation.html) (for reading .h5 files for SHD and N-MNIST datasets)
 
-(We developed our code on pyTorch 1.7.0 and CUDA 11.0 but it should also work on other versions)
+(We developed our code on pyTorch 1.7.1 and CUDA 11.0 but it should also work on other versions)
 
 ## Detailed setup
 
@@ -33,9 +34,10 @@ Activate the environment
 conda activate s3gd
 ```
 
-Then install the torch extension
+Then install the torch extension. 
 ```setup
-python cuda/setup_s3gd_cuda.py install
+cd cuda
+python setup_s3gd_cuda.py install
 ```
 
 This should install the extension. If everything went fine you should end up getting something similar to 
@@ -56,6 +58,7 @@ python
 ## Running 
 You can now run the code
 ```
+cd ..
 python main.py
 ```
 
