@@ -44,7 +44,7 @@ This should install the extension. If everything went fine you should end up get
 ```
 ...
 
-Installed c:\users\USERNAME\appdata\local\continuum\anaconda3\envs\pytorch\lib\site-packages\s3gd_cuda-0.0.0-py3.9-win-amd64.egg
+Installed /home/USERNAME/.conda/envs/s3gd/lib/python3.8/site-packages/s3gd_cuda-0.0.0-py3.8-linux-x86_64.egg
 Processing dependencies for s3gd-cuda==0.0.0
 Finished processing dependencies for s3gd-cuda==0.0.0
 ```

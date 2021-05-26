@@ -31,14 +31,6 @@ def read2Dspikes(filename):
     tEvent = ((inputAsInt[2::5] << 16) | (inputAsInt[3::5] << 8) | (inputAsInt[4::5])) & 0x7FFFFF
     return tEvent, xEvent, yEvent, pEvent
 
-def open_file(hdf5_file_path):
-    fileh = tables.open_file(hdf5_file_path, mode='r')
-    units = fileh.root.spikes.units
-    times = fileh.root.spikes.times
-    labels = fileh.root.labels
-    return units, times, labels
-
-
 def convert(prms):
     h5file = open_file(prms['output_filename'], mode="w", title="Training dataset")
     spikes = h5file.create_group(h5file.root, "spikes", "Spikes in eventbased form")
