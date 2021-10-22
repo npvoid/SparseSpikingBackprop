@@ -578,7 +578,10 @@ def compute_classification_accuracy(x_data, y_data, params, prs):
         if len(accs) % 25 == 0 and len(accs) > 0:
             print("Progress:{:d}/{:d}".format(len(accs), len(x_data) // prs['batch_size']))
         output, _ = run_snn(x_local.to_dense(), params, prs)
-        m, _ = torch.max(output, 1)  # max over time
+        if prs['dataset_id']==SHD:
+            m = torch.sum(output, dim=1)
+        else:
+            m, _ = torch.max(output, 1)  # max over time        
         _, am = torch.max(m, 1)  # argmax over output units
         tmp = np.mean((y_local == am).detach().cpu().numpy())  # compare to labels
         accs.append(tmp)
@@ -613,7 +616,10 @@ def time_snn(x_local, y_local, params, prs, warmup=None):
         spk_rec22_wu.retain_grad()
         # Run readout and loss
         out_rec_wu = SNNReadout(spk_rec22_wu, w3, prs)
-        m, _ = torch.max(out_rec_wu, 1)
+        if prs['dataset_id']=='SHD':
+            m = torch.sum(out_rec_wu, dim=1)
+        else:
+            m, _ = torch.max(out_rec_wu, 1)
         log_p_y = log_softmax_fn(m)
         loss_val_wu = loss_fn(log_p_y, y_local)
         ### READOUT LAYER BACKWARD ###
@@ -663,7 +669,10 @@ def time_snn(x_local, y_local, params, prs, warmup=None):
     spk_rec22.retain_grad()
     # Run readout and loss
     out_rec = SNNReadout(spk_rec22, w3, prs)
-    m, _ = torch.max(out_rec, 1)
+    if prs['dataset_id']=='SHD':
+        m = torch.sum(out_rec, dim=1)
+    else:
+        m, _ = torch.max(out_rec, 1)
     log_p_y = log_softmax_fn(m)
     loss_val = loss_fn(log_p_y, y_local)
 
