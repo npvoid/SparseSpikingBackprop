@@ -83,7 +83,7 @@ python main.py --dataset SHD
 ```
 
 You can also find the code for the plots in the paper under the `plotting` direcctory. 
-We included the results for a single seed so that it can be run with either `python final_plots.py` for the main text plots or `python supp_plots.py` for the supplementary plots.
+We included the results for a single seed so that it can be run with either `python final_plots.py` for the main text plots or `python supp_plots.py` for the supplementary plots. Note that the SHD results in the provided data were obtained by using max-over-time on the readout layer instead of sum-over-time which is necessary to obtain the 75+%  accuracy. The 75+% SHD data can be found in `plotting/results_bth`.
 
 ## Results
 
