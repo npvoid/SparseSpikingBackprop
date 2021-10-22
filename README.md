@@ -1,9 +1,19 @@
 
 # Sparse Spiking Gradient Descent
 
-A sparse gradient descent method for spiking neural networks that runs backpropagation up to 70x faster with up to 40% less memory. 
+A sparse gradient descent method for spiking neural networks that runs backpropagation up to 150x faster with up to 85% less memory. 
+Link to article: https://arxiv.org/abs/2105.08810
 
 <img src="plotting/backward_diagram.png" width="500" >
+
+Citation:
+```
+@article{perez2021sparse,
+  title={Sparse Spiking Gradient Descent},
+  author={Perez-Nieves, Nicolas and Goodman, Dan FM},
+  journal={arXiv preprint arXiv:2105.08810},
+  year={2021} }
+```
 
 ## Requirements
 
