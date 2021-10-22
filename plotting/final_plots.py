@@ -2,6 +2,7 @@ import os
 from plot_utils import plot_error, plt_set, panel_specs, label_panel
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tkr
+import matplotlib
 import pickle
 import numpy as np
 from scipy import stats
@@ -476,10 +477,174 @@ def plot_mem_neurons_bar(d_ALL, ax, j, hidden_list, colors=None):
     ax.set_xticks(hidden_list)
     ax.set_xticklabels(hidden_list)
 
+# ####################################################################################### #
+
+# ####################################### Panel 3 ####################################### #
+
+def read_data_bth(path_read):
+    d = pickle.load(open(os.path.join(path_read, 'data_bth.p'), 'rb'))
+
+    loss_orig = d['loss_orig']
+    fwd_orig = d['fwd_orig']
+    bwd_orig = d['bwd_orig']
+    fwdm_orig = d['fwdm_orig']
+    bwdm_orig = d['bwdm_orig']
+    train_acc_orig = d['train_acc_orig']
+    test_acc_orig = d['test_acc_orig']
+
+    loss_s3gd = d['loss_s3gd']
+    fwd_s3gd = d['fwd_s3gd']
+    bwd_s3gd = d['bwd_s3gd']
+    fwdm_s3gd = d['fwdm_s3gd']
+    bwdm_s3gd = d['bwdm_s3gd']
+    train_acc_s3gd = d['train_acc_s3gd']
+    test_acc_s3gd = d['test_acc_s3gd']
+
+    # Process data
+    loss_orig = np.array(loss_orig)
+    fwd_orig = np.array(fwd_orig)
+    bwd_orig = np.array(bwd_orig)
+    fwdm_orig = np.array(fwdm_orig) / (1024 ** 2)  # MiB
+    bwdm_orig = np.array(bwdm_orig) / (1024 ** 2)
+    loss_s3gd = np.array(loss_s3gd)
+    fwd_s3gd = np.array(fwd_s3gd)
+    bwd_s3gd = np.array(bwd_s3gd)
+    fwdm_s3gd = np.array(fwdm_s3gd) / (1024 ** 2)
+    bwdm_s3gd = np.array(bwdm_s3gd) / (1024 ** 2)
+
+    train_acc_orig_mean = np.mean(train_acc_orig, axis=0)
+    train_acc_orig_error = stats.sem(train_acc_orig)[0]
+    train_acc_s3gd_mean = np.mean(train_acc_s3gd, axis=0)
+    train_acc_s3gd_error = stats.sem(train_acc_s3gd)[0]
+    test_acc_orig_mean = np.mean(test_acc_orig, axis=0)
+    test_acc_orig_error = stats.sem(test_acc_orig)[0]
+    test_acc_s3gd_mean = np.mean(test_acc_s3gd, axis=0)
+    test_acc_s3gd_error = stats.sem(test_acc_s3gd)[0]
+
+    loss_orig_tavg = np.mean(loss_orig, axis=2)
+    fwd_orig_tavg = np.mean(fwd_orig, axis=2)
+    bwd_orig_tavg = np.mean(bwd_orig, axis=2)
+    fwdm_orig_tavg = np.mean(fwdm_orig, axis=2)
+    bwdm_orig_tavg = np.mean(bwdm_orig, axis=2)
+    loss_s3gd_tavg = np.mean(loss_s3gd, axis=2)
+    fwd_s3gd_tavg = np.mean(fwd_s3gd, axis=2)
+    bwd_s3gd_tavg = np.mean(bwd_s3gd, axis=2)
+    fwdm_s3gd_tavg = np.mean(fwdm_s3gd, axis=2)
+    bwdm_s3gd_tavg = np.mean(bwdm_s3gd, axis=2)
+
+    total_vars_first_hidden = d['prs_s3gd']['batch_size'] * d['prs_s3gd']['nb_steps'] * d['prs_s3gd']['nb_hidden']
+    total_vars_second_hidden = d['prs_s3gd']['batch_size'] * d['prs_s3gd']['nb_steps'] * d['prs_s3gd']['nb_hidden2']
+    activity1 = 100*np.mean(np.squeeze(np.array(d['active_counts1']))[:, 50:], axis=1) / total_vars_first_hidden
+    activity2 = 100*np.mean(np.squeeze(np.array(d['active_counts2']))[:, 50:], axis=1) / total_vars_second_hidden
+
+    d_bth = {
+        'loss_orig': loss_orig,
+        'fwd_orig': fwd_orig,
+        'bwd_orig': bwd_orig,
+        'fwdm_orig': fwdm_orig,
+        'bwdm_orig': bwdm_orig,
+        'loss_s3gd': loss_s3gd,
+        'fwd_s3gd': fwd_s3gd,
+        'bwd_s3gd': bwd_s3gd,
+        'fwdm_s3gd': fwdm_s3gd,
+        'bwdm_s3gd': bwdm_s3gd,
+
+        'train_acc_orig_mean': train_acc_orig_mean,
+        'train_acc_orig_error': train_acc_orig_error,
+        'train_acc_s3gd_mean': train_acc_s3gd_mean,
+        'train_acc_s3gd_error': train_acc_s3gd_error,
+        'test_acc_orig_mean': test_acc_orig_mean,
+        'test_acc_orig_error': test_acc_orig_error,
+        'test_acc_s3gd_mean': test_acc_s3gd_mean,
+        'test_acc_s3gd_error': test_acc_s3gd_error,
+
+        'loss_orig_tavg': loss_orig_tavg,
+        'fwd_orig_tavg': fwd_orig_tavg,
+        'bwd_orig_tavg': bwd_orig_tavg,
+        'fwdm_orig_tavg': fwdm_orig_tavg,
+        'bwdm_orig_tavg': bwdm_orig_tavg,
+        'loss_s3gd_tavg': loss_s3gd_tavg,
+        'fwd_s3gd_tavg': fwd_s3gd_tavg,
+        'bwd_s3gd_tavg': bwd_s3gd_tavg,
+        'fwdm_s3gd_tavg': fwdm_s3gd_tavg,
+        'bwdm_s3gd_tavg': bwdm_s3gd_tavg,
+
+        'activity1': activity1,
+        'activity2': activity2,
+
+        'dataset_title': 'SHD',
+    }
+    return d_bth
+
+
+# A11
+def plot_activity_bth(x, d_bth, ax, width):
+    activity = (d_bth['activity1']+d_bth['activity2']) / 2.
+    rects1 = ax.bar(x[:4], activity[::-1][:4], width, color="tab:orange", label="Learning intact")
+    rects1 = ax.bar(x[4:-3], activity[::-1][4:-3], width, color="tab:orange", hatch="///", label="Learning corrupted")
+    rects1 = ax.bar(x[-3:], activity[::-1][-3:], width, color="tab:orange", hatch="xxx", label="No Learning")
+    ax.set_ylabel('Activity (%)')
+    ax.set_xlabel(r"$B_{th}$")
+    ax.set_title('{:s} Hidden Activity'.format(dataset_name))
+    ax.set_xticks(x[::-1])
+    ax.set_xticklabels(bth_list, fontsize=8)
+
+# A12
+def plot_accuracy_bth(x, d_bth, ax, width):
+    rects1 = ax.bar(x - width / 2, 100*d_bth['test_acc_orig_mean'][::-1], width, label='Original')
+    rects3 = ax.bar(x[:4] + width / 2, 100*d_bth['test_acc_s3gd_mean'][::-1][:4], width, color="tab:orange",
+                    label="Learning intact")
+    rects3 = ax.bar(x[4:-3] + width / 2, 100*d_bth['test_acc_s3gd_mean'][::-1][4:-3], width, color="tab:orange",
+                    hatch="///", label="Learning corrupted")
+    rects3 = ax.bar(x[-3:] + width / 2, 100*d_bth['test_acc_s3gd_mean'][::-1][-3:], width, color="tab:orange",
+                    hatch="xxx", label="No Learning")
+    ax.set_ylim([0, 100])
+    ax.set_ylabel('Accuracy (%)')
+    ax.set_xlabel(r'$B_{th}$')
+    ax.set_title('{:s} Test Accuracy'.format(dataset_name))
+    ax.set_xticks(x[::-1])
+    ax.set_xticklabels(bth_list, fontsize=8)
+
+# A21
+def plot_speedup_bth(x, d_bth, ax, width):
+    def speedupfmt(x, pos):  # your custom formatter function: divide by 1000.0
+        s = '{}x'.format(int(x))
+        return s
+    rects1 = ax.bar(x[:4], (np.squeeze(d_bth['bwd_orig_tavg'] / (d_bth['bwd_s3gd_tavg'] + 1e-30)))[::-1][:4], width, color="tab:orange",
+                    label="Learning intact")
+    rects1 = ax.bar(x[4:-3], (np.squeeze(d_bth['bwd_orig_tavg'] / (d_bth['bwd_s3gd_tavg'] + 1e-30)))[::-1][4:-3], width,
+                    color="tab:orange", hatch="///", label="Learning corrupted")
+    rects1 = ax.bar(x[-3:], (np.squeeze(d_bth['bwd_orig_tavg'] / (d_bth['bwd_s3gd_tavg'] + 1e-30)))[::-1][-3:], width, color="tab:orange",
+                    hatch="xxx", label="No Learning")
+    ax.set_xlabel(r"$B_{th}$")
+    ax.set_yscale('log')
+    ax.set_ylabel("Speedup")
+    ax.set_title("{:s} Backward Speedup ".format(dataset_name))
+    ax.set_yticks([1, 10, 100, 1000])
+    ax.yaxis.set_major_formatter(tkr.FuncFormatter(speedupfmt))  # add the custom ticks
+    ax.set_xticks(x)
+    ax.set_xticklabels(bth_list[::-1], fontsize=8)
+
+# A22
+def plot_mem_bth(x, d_bth, ax, width):
+    rects1 = ax.bar(x[:4], (np.squeeze(100 * ((d_bth['bwdm_orig_tavg'] / (d_bth['bwdm_s3gd_tavg'] + 1e-30)) - 1)))[::-1][:4], width,
+                    color="tab:orange", label="Learning intact")
+    rects1 = ax.bar(x[4:-3], (np.squeeze(100 * ((d_bth['bwdm_orig_tavg'] / (d_bth['bwdm_s3gd_tavg'] + 1e-30)) - 1)))[::-1][4:-3], width,
+                    color="tab:orange", hatch="///", label="Learning degraded")
+    rects1 = ax.bar(x[-3:], (np.squeeze(100 * ((d_bth['bwdm_orig_tavg'] / (d_bth['bwdm_s3gd_tavg'] + 1e-30)) - 1)))[::-1][-3:], width,
+                    color="tab:orange", hatch="xxx", label="No Learning")
+    ax.set_xticks(x)
+    ax.set_xticklabels(bth_list[::-1], fontsize=8)
+    ax.set_xlabel(r"$B_{th}$")
+    ax.set_ylabel(' GPU Memory Save (%) ')
+    ax.set_title("{:s} Backward Memory Saved ".format(dataset_name))
+    ax.set_ylim(bottom=0)
+
+# ####################################################################################### #
+
 if __name__ == "__main__":
 
     save = False
-    # save = True
 
     hidden_list = [200, 400, 600, 800, 1000]
     nb_trials = 1
@@ -537,9 +702,13 @@ if __name__ == "__main__":
 
     vmin_s = min(np.min(grad_s_orig), np.min(grad_s_s3gd))
     vmax_s = max(np.max(grad_s_orig), np.max(grad_s_s3gd))
+    max_s = max(abs(vmin_s), abs(vmax_s))
+    vmin_s, vmax_s = -max_s, max_s
+
     N = 2
-    M = 2
+    M = 3
     subgs = specs['B'].subgridspec(N, M, wspace=0.2, hspace=0.2)
+    subgs.set_width_ratios([20, 20, 1])
     triaxes = {}
     for i in range(N):
         for j in range(M):
@@ -549,23 +718,28 @@ if __name__ == "__main__":
                 plt.fill_between([0, range_w], [range_w, range_w], color="none", hatch="////", edgecolor="silver", linewidth=0.)  # Hatch
                 if j==0:
                     grad_w_orig[grad_w_orig==0.] = np.NaN
-                    plot_gradients(ax, grad_w_orig, i, j, vmin_w, vmax_w, heatmap=HEATMAP)
+                    hm = plot_gradients(ax, grad_w_orig, i, j, vmin_w, vmax_w, heatmap=HEATMAP)
                     ax.set_title(r'Original $\nabla W^{(0)}$')
                     ax.set_ylabel('Output Neuron index')
                     ax.set_xticks([0, 5, 10, 15, 20])
                     ax.set_yticks([0, 5, 10, 15, 20])
                     ax.set_yticklabels(['0', '5', '10', '15', '20'])
-                else:
+                elif j==1:
                     grad_w_s3gd[grad_w_s3gd==0.] = np.NaN
-                    plot_gradients(ax, grad_w_s3gd, i, j, vmin_w, vmax_w, heatmap=HEATMAP)
+                    hm = plot_gradients(ax, grad_w_s3gd, i, j, vmin_w, vmax_w, heatmap=HEATMAP)
                     ax.set_title(r'Sparse $\nabla W^{(0)}$')
                     ax.set_xticks([0, 5, 10, 15, 20])
                     ax.set_yticks([0, 5, 10, 15, 20])
+                else:
+                    norm = matplotlib.colors.Normalize(vmin=vmin_w, vmax=vmax_w)
+                    cb = matplotlib.colorbar.ColorbarBase(ax, cmap=matplotlib.cm.get_cmap(name=HEATMAP), norm=norm, orientation='vertical')
+                    cb.ax.tick_params(labelsize=8)
+                    cb.ax.yaxis.get_offset_text().set_fontsize(8)
             else:
                 plt.fill_between([0, range_s], [range_s, range_s], color="none", hatch="////", edgecolor='silver', linewidth=0.)  # Hatch
                 if j==0:
                     grad_s_orig[grad_s_orig==0.] = np.NaN
-                    plot_gradients(ax, grad_s_orig, i, j, vmin_s, vmax_s, heatmap=HEATMAP)
+                    hm = plot_gradients(ax, grad_s_orig, i, j, vmin_s, vmax_s, heatmap=HEATMAP)
                     ax.set_title(r'Original $\nabla S^{(1)}$')
                     ax.set_ylabel('Time index')
                     ax.set_xlabel('Input Neuron index')
@@ -573,14 +747,19 @@ if __name__ == "__main__":
                     ax.set_yticks([0, 5, 10, 15, 20])
                     ax.set_xticklabels(['0', '5', '10', '15', '20'], rotation=0)
                     ax.set_yticklabels(['0', '5', '10', '15', '20'])
-                else:
+                elif j==1:
                     grad_s_s3gd[grad_s_s3gd==0.] = np.NaN
-                    plot_gradients(ax, grad_s_s3gd, i, j, vmin_s, vmax_s, heatmap=HEATMAP)
+                    hm = plot_gradients(ax, grad_s_s3gd, i, j, vmin_s, vmax_s, heatmap=HEATMAP)
                     ax.set_title(r'Sparse $\nabla S^{(1)}$')
                     ax.set_xlabel('Input Neuron index')
                     ax.set_xticks([0, 5, 10, 15, 20])
                     ax.set_yticks([0, 5, 10, 15, 20])
                     ax.set_xticklabels(['0', '5', '10', '15', '20'], rotation=0)
+                else:
+                    norm = matplotlib.colors.Normalize(vmin=vmin_s, vmax=vmax_s)
+                    cb = matplotlib.colorbar.ColorbarBase(ax, cmap=matplotlib.cm.get_cmap(name=HEATMAP), norm=norm, orientation='vertical')
+                    cb.ax.tick_params(labelsize=8)
+                    cb.ax.yaxis.get_offset_text().set_fontsize(8)
     label_panel(triaxes[0, 0], 'B')
 
     # C: loss
@@ -648,7 +827,107 @@ if __name__ == "__main__":
     label_panel(triaxes[0, 0], 'C')
 
     plt.tight_layout()
-    plt.show()
 
     if save:
         plt.savefig(os.path.join('panel2.pdf'))
+
+
+    ############################## PANEL 3 #################################
+    PATH_RESULTS = "results_bth"
+
+    bth_list = [0.999999, 0.99999, 0.9999, 0.999, 0.99, 0.95, 0.9, 0.8, 0.75]
+    nb_hidden = 400
+    dataset_name = "SHD"
+
+    d_bth = read_data_bth(PATH_RESULTS)
+    x = np.arange(len(bth_list))
+
+    layout = '''
+        AC
+        BC
+        BC
+        '''
+    fig = plt.figure(figsize=(12, 8), dpi=150)
+    specs, gs = panel_specs(layout, fig=fig)
+
+    # A: Accuracy
+    N = 1
+    M = 1
+    ax = fig.add_subplot(specs['A'])
+    width = 0.35
+    plot_accuracy_bth(x, d_bth, ax, width)
+    ax.legend()
+    label_panel(ax, 'A')
+
+    # B: Loss
+    def numfmt(x, pos):
+        s = '{}'.format(x / 1000.0)
+        return s
+    N = 2
+    M = 2
+    n_dict = {(0, 0): 1, (0, 1): 3, (1, 0): 4, (1, 1): 5}
+    bth_dict = {(0, 0): 0.99999, (0, 1): 0.999, (1, 0): 0.99, (1, 1): 0.95}
+    subgs = specs['B'].subgridspec(N, M, wspace=0.15, hspace=0.15)
+    triaxes = {}
+    for i in range(N):
+        for j in range(M):
+            triaxes[i, j] = ax = fig.add_subplot(subgs[i, j])
+            n = n_dict[i, j]
+            b_th = bth_dict[i, j]
+            plot_error(d_bth['loss_orig'][:, n, :], label='Original', ax=ax)
+            plot_error(d_bth['loss_s3gd'][:, n, :], label='Sparse', ax=ax)
+            if n == 0:
+                ax.set_title(r"{:s} = {:.6f}".format(r"$B_{th}$", b_th))
+            elif n == 1:
+                ax.set_title(r"{:s} = {:.5f}".format(r"$B_{th}$", b_th))
+            elif n == 2:
+                ax.set_title(r"{:s} = {:.4f}".format(r"$B_{th}$", b_th))
+            elif n == 3:
+                ax.set_title(r"{:s} = {:.3f}".format(r"$B_{th}$", b_th))
+            else:
+                ax.set_title(r"{:s} = {:.2f}".format(r"$B_{th}$", b_th))
+            ax.set_xticks([0, 250, 500, 750, 1000])
+            if i==0:
+                ax.set_xticklabels([])
+            else:
+                ax.set_xlabel(r'Gradient updates')
+            if j==0:
+                ax.set_ylabel("Loss")
+            else:
+                ax.set_yticklabels([])
+            if i==0 and j==1:
+                ax.legend()
+    label_panel(triaxes[0, 0], 'B')
+
+
+    # A: Activity, Sppedup, Memory
+    N = 3
+    M = 1
+    subgs = specs['C'].subgridspec(N, M, wspace=0., hspace=0.15)
+    triaxes = {}
+    for i in range(N):
+        for j in range(M):
+            triaxes[i, j] = ax = fig.add_subplot(subgs[i, j])
+            width = 0.5
+            if i==0:
+                plot_activity_bth(x, d_bth, ax, width)
+                ax.set_xticklabels([])
+                ax.set_xlabel('')
+                ax.legend()
+            elif i==1:
+                plot_speedup_bth(x, d_bth, ax, width)
+                ax.set_xticklabels([])
+                ax.set_xlabel('')
+            else:
+                plot_mem_bth(x, d_bth, ax, width)
+    label_panel(triaxes[0, 0], 'C')
+
+    plt.tight_layout()
+
+    if save:
+        plt.savefig(os.path.join('panel3.pdf'))
+
+
+    plt.show()
+
+
