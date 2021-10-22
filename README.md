@@ -108,7 +108,16 @@ We included the results for a single seed so that it can be run with either `pyt
 * C. Backward speed and memory saved in the second hidden layer as we increasethe number of hidden neurons in all hidden layers. We included the overall speedup which takes intoconsideration both the forward and backward times spent in the second layer.
 
 
+###  Sparsity-Accuracy trade-off
 
+<img src="plotting/fig3.png" width="500" >
+
+
+* A.  Final test accuracy on the SHD dataset as <img src="https://render.githubusercontent.com/render/math?math=B_{th}"> increases.
+
+* B. Loss evolution on the SHD dataset for different <img src="https://render.githubusercontent.com/render/math?math=B_{th}"> .
+
+* C. Hidden activity, backward speedup and backward memory saved as <img src="https://render.githubusercontent.com/render/math?math=B_{th}">  increases.
 
 
 
